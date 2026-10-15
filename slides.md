@@ -366,37 +366,42 @@ Chaque patron apporte un gain en performance, mais impose un coût en latence et
 </div>
 
 ---
-layout: two-cols
+layout: default
 ---
 
 # Combiner les patrons : L'Agent de Développement Moderne
 
 En production, ces patrons ne s'excluent pas : ils s'assemblent en une chaîne cohérente.
 
-<div class="mt-30 text-center text-xs text-gray-500">
-  Cet assemblage méthodique est exactement ce qui alimente les outils d'ingénierie logicielle modernes (Devin, Cursor Agent, Claude Code).
-</div>
 
 
-::right::
-<div class="flex justify-center">
+<div class="w-full flex justify-center my-4 scale-95 origin-top">
 
-```mermaid {scale: 0.7}
-graph TD
-    U[Demande utilisateur : Corriger le bug #402] --> P[Planification : Identifier les fichiers touchés]
-    P --> T[Usage d'outils : Git grep, lecture du code source]
-    T --> G[Générateur : Écriture du patch]
-    G --> R[Réflexion : Exécution de la suite de tests unitaires]
-    R -->|Échec des tests| G
-    R -->|Tests au vert| M[Multi-Agents : Revue sécurité par l'agent Reviewer]
-    M --> F[Pull Request créée]
-    
+```mermaid {scale:0.6}
+flowchart LR
+    U["🎯 <b>Demande</b><br/>Bug #402"] --> P["🗺️ <b>Planification</b><br/>Fichiers touchés"]
+    P --> T["🛠️ <b>Outils</b><br/>Git grep, lecture"]
+    T --> G["✍️ <b>Générateur</b><br/>Écriture patch"]
+    G --> R{"🪞 <b>Réflexion</b><br/>Tests unitaires"}
+    R -- "❌ Échec" --> G
+    R -- "✅ Succès" --> M["👥 <b>Multi-Agents</b><br/>Revue sécurité"]
+    M --> F["🚀 <b>Pull Request</b><br/>créée"]
+
     style P fill:#ccfbf1,stroke:#0d9488,color:#000
     style T fill:#e0e7ff,stroke:#4f46e5,color:#000
     style R fill:#ffe4e6,stroke:#e11d48,color:#000
     style M fill:#fef3c7,stroke:#d97706,color:#000
+    style G fill:#f8fafc,stroke:#64748b,color:#000
+    style U fill:#f1f5f9,stroke:#94a3b8,color:#000
+    style F fill:#dcfce7,stroke:#22c55e,color:#000
 ```
+
 </div>
+
+<div class="mt-5 text-center text-xs text-gray-500">
+  Cet assemblage méthodique est exactement ce qui alimente les outils d'ingénierie logicielle modernes (Devin, Cursor Agent, Claude Code).
+</div>
+
 
 ---
 layout: default
