@@ -1,9 +1,7 @@
-### MODULE 2 — Introduction à l'agentique
-1. **Du chatbot à l'agent** — la différence fondamentale : générer du texte vs *agir*
-2. **Définition d'un agent IA** — « un outil qui intéragir avec un LLM et qui appelle des outils dans une boucle pour atteindre un but »
-3. **Historique et panorama** — de l'IA symbolique aux systèmes agentiques modernes
-4. **Pourquoi l'agentique maintenant ?** — GPT-4, function calling, frameworks, MCP
-5. **Typologie** — agent simple, agent orchestrateur, systèmes multi-agents, workflow vs agent autonome
-6. **Quand utiliser un agent ? (et quand ne pas le faire)** — arbre de décision : LLM seul / RAG / workflow / agent
+### MODULE 4 — Les 4 patrons de conception agentiques
+> Le cœur technique, inspiré des patterns d'Andrew Ng.
 
-> Message = Rien de très nouveau, un orchestrateur pour atteindre un but qui peut utiliser des LLMs mais aussi des outils déterministes. 
+1. **Patron Réflexion** — l'agent critique et améliore sa propre production ; l'auto-évaluation ; feedback externe (humain, exécution de code)
+2. **Patron Usage d'outils** — le LLM décide quelles fonctions appeler ; function calling ; exemples (recherche, calendrier, email, code)
+3. **Patron Planification** — décomposition d'une tâche complexe en sous-tâches ; planification flexible et adaptative ; plan as JSON ou code généré
+4. **Patron Multi-agents** — collaboration d'agents spécialisés ; orchestrateur / orchestration vs chorégraphie ; avantages et coûts
