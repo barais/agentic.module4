@@ -21,7 +21,7 @@ transition: slide-left
 comark: true
 download: true
 # duration of the presentation
-duration: 35min
+duration: 10min
 ---
 
 # Module 4 : Les 4 Patrons de Conception Agentiques
@@ -36,13 +36,17 @@ duration: 35min
 layout: default
 ---
 
-# L'intuition d'Andrew Ng : Le flux bat la taille du modèle
+# L'intuition d'Andrew Ng : Le flux est un levier aussi important que la taille du modèle
 
 <div class="text-xl text-rose-500 font-semibold mb-4">
-  « Un modèle plus petit orchestré par un bon patron agentique surpasse souvent un modèle géant interrogé en Zero-Shot. »
+  « Sur des benchmarks ciblés (QA médical, HumanEval), un modèle plus petit orchestré par un bon patron agentique peut surpasser un modèle géant interrogé en Zero-Shot. »
 </div>
 
-<div class="grid grid-cols-4 gap-4 mt-8 text-center text-xs">
+<div class="p-2 mb-4 bg-amber-50 dark:bg-amber-950 border border-amber-500/30 rounded text-[11px] text-gray-600 dark:text-gray-300">
+  ⚠️ Observation empirique d'Andrew Ng (2024), pas une loi universelle : la supériorité dépend de la tâche, du patron et du modèle. Le workflow est un levier au moins aussi important que la taille — mais il peut aussi s'inverser sur certaines tâches.
+</div>
+
+<div class="grid grid-cols-4 gap-4 mt-4 text-center text-xs">
 
   <div class="p-4 border-2 border-rose-500 rounded-xl bg-rose-50 dark:bg-rose-950 flex flex-col justify-between">
     <div>
@@ -88,7 +92,7 @@ layout: default
 
 # 1. Patron Réflexion (Reflection)
 
-Ne jamais se contenter du premier jet statistique : instaurer une boucle d'auto-évaluation.
+Ne jamais se contenter du premier jet : instaurer une boucle d'auto-évaluation.
 
 <div class="mt-4 flex justify-center">
 
@@ -118,7 +122,7 @@ graph LR
 <div>
 
 ### Pourquoi ça marche ?
-En mode direct (Zero-shot), le modèle est coincé par son calcul probabiliste linéaire. La réflexion lui offre du **temps de calcul supplémentaire** et un contexte enrichi de ses propres erreurs.
+En mode direct (Zero-shot), le modèle n'effectue qu'**une seule passe de génération** : pas d'itération, pas de vérification. La réflexion lui accorde du **temps de calcul au moment de l'inférence** (*test-time compute*) et un **contexte enrichi de ses propres erreurs**.
 
 </div>
 </div>
@@ -128,8 +132,6 @@ layout: two-cols-header
 ---
 
 # Réflexion : Feedback interne vs externe
-
-
 
 Le piège de la réflexion purement textuelle : le modèle peut s'auto-persuader de ses erreurs.
 
@@ -150,7 +152,11 @@ Le piège de la réflexion purement textuelle : le modèle peut s'auto-persuader
   - Un interpréteur de code ou un humain
 
 <div class="p-2 mt-3 bg-rose-50 dark:bg-rose-950 border border-rose-500/30 rounded text-[11px]">
-  💡 <b>Règle d'or :</b> La meilleure réflexion s'appuie sur la sortie d'un compilateur ou d'un test, jamais uniquement sur l'avis d'un autre LLM.
+  💡 <b>Règle d'or :</b> Pour la <b>correction objective</b> (code, faits), la réflexion doit s'ancrer sur un feedback déterministe — compilateur, tests, exécution. L'avis d'un LLM est utile pour la <b>qualité subjective</b> (style, lisibilité), mais ne doit jamais être l'unique source de vérité.
+</div>
+
+<div class="p-2 mt-2 bg-gray-100 dark:bg-gray-800 rounded text-[11px] text-gray-600 dark:text-gray-300">
+  🔁 <b>En production :</b> bornez la boucle (<code>max_iterations</code> ≈ 3 à 5) — une critique qui diverge peut faire exploser le budget tokens.
 </div>
 
 </div>
@@ -183,6 +189,10 @@ Le modèle s'affranchit de sa coquille textuelle en pilotant du code externe.
   }
 }
 ```
+
+<div class="p-2 mt-3 bg-rose-50 dark:bg-rose-950 border border-rose-500/30 rounded text-[11px]">
+  ⚠️ <b>Piège classique :</b> le modèle peut choisir le bon outil mais inventer un argument ou un type invalide. Validez systématiquement les arguments côté runtime (JSON Schema strict / <code>pydantic</code>) et cloisonnez les outils sensibles (emails, écritures) par des permissions.
+</div>
 
 </div>
 
@@ -228,7 +238,7 @@ Pour les problèmes vastes, l'agent doit structurer sa démarche avant de foncer
 </div>
 
 <div class="p-3 bg-gray-900 text-gray-100 rounded-lg font-mono text-[11px] leading-relaxed">
-  <div class="text-teal-400 font-bold">// Plan JSON généré par l'agent :</div>
+  <div class="text-teal-400 font-bold">// Plan déclaratif (JSON) généré par l'agent :</div>
   {<br/>
   &nbsp;&nbsp;"goal": "Migrer la table users vers PostgreSQL",<br/>
   &nbsp;&nbsp;"steps": [<br/>
@@ -242,8 +252,21 @@ Pour les problèmes vastes, l'agent doit structurer sa démarche avant de foncer
 </div>
 
 <div class="mt-4 text-xs text-gray-500">
-  🧠 <b>Alternative moderne :</b> « Code-as-Plan » — L'agent écrit directement un script Python orchestrant les étapes avec des blocs `try/except`.
+  🧠 <b>Deux représentations du plan, deux trade-offs :</b><br/>
+  &nbsp;&nbsp;• <b>Déclaratif (JSON)</b> — inspectable, modifiable, auditable → idéal pour le re-planning et la supervision externe.<br/>
+  &nbsp;&nbsp;• <b>Impératif (Code-as-Plan)</b> — l'agent écrit un script Python orchestrant les étapes avec des blocs <code>try/except</code> → plus expressif, mais opaque et moins réversible.<br/>
+  <span class="text-gray-400">Le choix dépend du besoin d'auditabilité et de contrôle du plan.</span>
 </div>
+
+<style>
+h3 {
+  font-size:1.2em;
+}
+li {
+  font-size:0.9em;
+}
+
+</style>
 
 ---
 layout: two-cols-header
@@ -268,6 +291,10 @@ Diviser pour régner : attribuer des rôles stricts et étanches à plusieurs so
 3. **Le QA / Testeur :** Écrit les tests unitaires et cherche à casser l'implémentation.
 4. **Le Reviewer :** Valide la fusion sur la branche principale.
 
+</div>
+
+<div class="mt-6 p-2 bg-amber-50 dark:bg-amber-950 border border-amber-500/30 rounded text-[11px] text-gray-600 dark:text-gray-300">
+  ⚠️ <b>Résultat empirique :</b> pour beaucoup de tâches, un <b>seul agent bien prompté + outils</b> bat un multi-agents (moins de coûts, moins de dérives). Le multi-agents ne paie qu'en cas d'<b>isolation de contexte</b>, de <b>vérification croisée</b> (le développeur ≠ le QA) ou d'<b>expertises divergentes</b>.
 </div>
 
 ---
@@ -336,13 +363,13 @@ Chaque patron apporte un gain en performance, mais impose un coût en latence et
   <tbody>
     <tr class="border-b border-gray-200 dark:border-gray-800">
       <td class="p-2 font-semibold text-rose-500">1. Réflexion</td>
-      <td class="p-2">Faible (boucle `while`)</td>
-      <td class="p-2">Moyen ($\times 2$ à $\times 4$)</td>
+      <td class="p-2">Faible (boucle `while` bornée)</td>
+      <td class="p-2">Moyen ($\times 2$ à $\times 4$ selon itérations)</td>
       <td class="p-2">Génération de code sans bugs, rédaction juridique rigoureuse.</td>
     </tr>
     <tr class="border-b border-gray-200 dark:border-gray-800">
       <td class="p-2 font-semibold text-indigo-500">2. Usage d'outils</td>
-      <td class="p-2">Moyenne (gestion des schémas d'API)</td>
+      <td class="p-2">Moyenne (gestion des schémas d'API + validation)</td>
       <td class="p-2">Faible à modéré</td>
       <td class="p-2">Accès aux données fraîches, calculs mathématiques, actions SI.</td>
     </tr>
@@ -355,15 +382,19 @@ Chaque patron apporte un gain en performance, mais impose un coût en latence et
     <tr>
       <td class="p-2 font-semibold text-amber-500">4. Multi-Agents</td>
       <td class="p-2">Élevée (framework type LangGraph / CrewAI)</td>
-      <td class="p-2">Très élevé ($\times 5$ à $\times 20$)</td>
+      <td class="p-2">Très élevé ($\times 5$ à $\times 20$ — ordres de grandeur)</td>
       <td class="p-2">Problèmes complexes nécessitant des expertises divergentes.</td>
     </tr>
   </tbody>
 </table>
 </div>
 
-<div class="mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded text-center text-xs">
-  💡 <b>Conseil pratique :</b> Commencez toujours par <i>Outils + Réflexion</i> avant d'envisager une architecture <i>Multi-Agents</i>.
+<div class="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-center text-[11px] text-gray-500">
+  📐 Les facteurs ×n sont des ordres de grandeur : ils dépendent du nombre de tours de boucle et de la longueur des échanges.
+</div>
+
+<div class="mt-2 p-2 bg-emerald-50 dark:bg-emerald-950 border border-emerald-500/30 rounded text-center text-xs">
+  💡 <b>Conseil pratique :</b> Commencez toujours par <i>Outils + Réflexion</i> — un seul agent bien configuré + outils suffit souvent — avant d'envisager une architecture <i>Multi-Agents</i>.
 </div>
 
 ---
@@ -413,10 +444,10 @@ layout: default
 <div class="p-5 bg-rose-50 dark:bg-rose-950 border border-rose-500 rounded-xl space-y-3">
   <div class="font-bold text-rose-600 text-lg">À retenir sur les 4 patrons agentiques :</div>
   <ul class="text-sm space-y-2">
-    <li>🔹 <b>Réflexion :</b> Indispensable pour la qualité, mais gagne à être branchée sur des feedbacks déterministes (tests, linters) plutôt que sur un LLM seul.</li>
-    <li>🔹 <b>Usage d'outils :</b> Le socle d'ancrage dans le monde réel ; transforme le LLM en aiguilleur d'APIs.</li>
-    <li>🔹 <b>Planification :</b> Prévient la dérive de contexte sur les tâches complexes par découpage en sous-étapes gérées dynamiquement.</li>
-    <li>🔹 <b>Multi-Agents :</b> Architecture puissante pour l'isolation des contextes, mais à réserver aux cas où un superviseur central contrôle strictement les échanges.</li>
+    <li><b>Réflexion :</b> Indispensable pour la qualité, mais à ancrer sur des feedbacks déterministes (tests, linters) pour la correction objective — l'avis LLM se limite à la qualité subjective — et à borner en nombre d'itérations.</li>
+    <li><b>Usage d'outils :</b> Le socle d'ancrage dans le monde réel ; transforme le LLM en aiguilleur d'APIs — validez les arguments et cloisonnez les outils sensibles.</li>
+    <li><b>Planification :</b> Prévient la dérive de contexte sur les tâches complexes par découpage en sous-étapes gérées dynamiquement — le plan déclaratif (JSON) facilite le re-planning et l'audit.</li>
+    <li><b>Multi-Agents :</b> Puissant pour l'isolation des contextes et la vérification croisée, mais coûteux : réservez-le aux cas où un superviseur central contrôle strictement les échanges et où un agent unique ne suffit plus.</li>
   </ul>
 </div>
 
@@ -431,4 +462,3 @@ class: text-center
 
 # Fin du Module 4
 ### Questions & retours d'expérience sur les patrons !
-
