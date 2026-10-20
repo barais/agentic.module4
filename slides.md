@@ -464,3 +464,4 @@ class: text-center
 ### Questions & retours d'expérience sur les patrons !
 
 En route vers [Technologie, Infrastructure & Outils 🚀](https://olivier.barais.fr/agentic.module5/)
+
