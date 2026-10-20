@@ -462,3 +462,5 @@ class: text-center
 
 # Fin du Module 4
 ### Questions & retours d'expérience sur les patrons !
+
+En route vers [Technologie, Infrastructure & Outils 🚀](https://olivier.barais.fr/agentic.module5/)
